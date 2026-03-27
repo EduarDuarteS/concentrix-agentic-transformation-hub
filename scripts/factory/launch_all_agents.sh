@@ -1,35 +1,33 @@
 #!/bin/bash
-echo "📐 Sifu: Lanzando Escuadrón de Agentes NHITL (Sifu 5.2 RE-ARMED)..."
+echo "📐 Sifu: Lanzando Escuadrón de Agentes NHITL (Sifu 5.2 - FULL STACK)..."
 
 # 1. Gateway de Eventos (Node.js)
 cd /home/node/.openclaw/workspace/apps/gateway && ts-node index.ts &
-GATEWAY_PID=$!
-echo "✅ Gateway iniciado (PID: $GATEWAY_PID)"
+echo "✅ Gateway iniciado"
 
-# 2. Monitor de Resiliencia (Python)
+# 2. Monitor de Resiliencia
 python3 /home/node/.openclaw/workspace/apps/gateway/sifu_resilience_worker.py &
-RESILIENCE_PID=$!
-echo "✅ Monitor de Resiliencia iniciado (PID: $RESILIENCE_PID)"
+echo "✅ Monitor de Resiliencia iniciado"
 
-# 3. Orquestador LangGraph (IA Architect)
+# 3. IA Architect (Brain)
 python3 /home/node/.openclaw/workspace/scripts/factory/sifu_ai_architect_engine.py &
-IA_ARCH_PID=$!
-echo "✅ IA Architect Engine iniciado (PID: $IA_ARCH_PID)"
+echo "✅ IA Architect Engine iniciado"
 
-# 4. Lead Coder Agent (El Programador)
+# 4. Prompt Engineer (Optimizer)
+python3 /home/node/.openclaw/workspace/scripts/factory/prompt_agent_worker.py &
+echo "✅ Prompt Architect Agent iniciado"
+
+# 5. Lead Coder (Muscle)
 python3 /home/node/.openclaw/workspace/scripts/factory/coder_agent_worker.py &
-CODER_PID=$!
-echo "✅ Lead Coder Agent iniciado (PID: $CODER_PID)"
+echo "✅ Lead Coder Agent iniciado"
 
-# 5. Git Automator Agent (Trazabilidad)
+# 6. Git Automator (DevOps)
 python3 /home/node/.openclaw/workspace/scripts/factory/git_agent_worker.py &
-GIT_PID=$!
-echo "✅ Git Automator Agent iniciado (PID: $GIT_PID)"
+echo "✅ Git Automator Agent iniciado"
 
-# 6. Knowledge Manager (Documentación)
+# 7. Knowledge Manager (Scribe)
 python3 /home/node/.openclaw/workspace/scripts/factory/docu_agent_worker.py &
-DOCU_PID=$!
-echo "✅ Knowledge Manager iniciado (PID: $DOCU_PID)"
+echo "✅ Knowledge Manager iniciado"
 
-echo "🚀 Fábrica Autónoma operando en 6 carriles paralelos."
-echo "🎯 La orquesta digital está completa y afinada."
+echo "🚀 Fábrica Autónoma operando en 7 carriles paralelos."
+echo "🎯 Sistema listo para la demostración técnica."
