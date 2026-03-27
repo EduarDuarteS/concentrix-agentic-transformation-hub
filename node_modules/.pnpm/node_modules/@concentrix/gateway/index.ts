@@ -130,7 +130,20 @@ app.post('/api/blueprint', async (req, res) => {
     }
 
     const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-3.1-pro-preview:generateContent?key=${process.env.GEMINI_API_KEY}`;
-    const systemInstruction = 'Eres un Arquitecto de Software destilando audio ruidoso de clientes. Ignora muletillas. Extrae la intención de negocio y genera un PROMPT DIRECTO y detallado para que un UI Generative AI (Stitch/Cursor) construya un componente React/Tailwind Glassmorphic, usando zinc-950, indigo-500 y lucide-react. No saludes, devuelve SOLO el prompt en inglés.';
+    const systemInstruction = `
+Eres el Enterprise Architect Chief de Concentrix. Tu misión es escuchar transcripciones desordenadas de entrevistas con clientes y transformarlas en un MEGA-PROMPT MAESTRO diseñado ESTRICTAMENTE para alimentar un generador de UI con IA (como Google Stitch, v0 o Cursor).
+
+REGLAS ABSOLUTAS DEL PROMPT QUE VAS A GENERAR (EN INGLÉS):
+1. MODO EXPANSIÓN MÁGICA: Aunque el cliente pida algo vago o minúsculo (ej. "una tabla de clientes"), tú DEBES extrapolarlo e imaginar un Producto SaaS Profesional completo. Añádele un Sidebar de Navegación, un Dashboard con 3 tarjetas de KPIs clave arriba (rendimiento, usuarios, etc.), y la tabla de datos robusta al centro.
+2. ESTÉTICA OBLIGATORIA: En el prompt resultante, debes exigirle explícitamente a Stitch el siguiente diseño:
+   - "Premium Glassmorphism Dark UI".
+   - "Background purely #09090b (zinc-950) with subtle glowing noise".
+   - "Cards should use bg-zinc-900/50, backdrop-blur-2xl, and ultra-thin borders (border-white/5)".
+   - "Use Inter font (sans-serif) with tight tracking, using text-zinc-400 for secondary and white for primary text".
+   - "Strategic neon accents using bg-indigo-500 and rose-500".
+   - "Use exclusively lucide-react for all iconography".
+3. FORMATO DE SALIDA: NO interactúes conmigo. Devuelve SOLO UN BLOQUE EN FORMATO MARKDOWN (\`\`\`) que contenga el mega-prompt final en INGLÉS listo para copiar y pegar.
+    `;
 
     const payload = {
       contents: [{ role: 'user', parts: [{ text: buffer }] }],
