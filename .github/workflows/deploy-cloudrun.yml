@@ -53,26 +53,26 @@ jobs:
 
       - name: Build and Push Web (Nginx)
         run: |
-          docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/web-app:${{ github.sha }} -f apps/web/Dockerfile .
-          docker push us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/web-app:${{ github.sha }}
+          docker build -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/concentrix-repo/web-app:${{ github.sha }} -f apps/web/Dockerfile .
+          docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/concentrix-repo/web-app:${{ github.sha }}
 
       - name: Deploy Web to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: web-app
-          image: us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/web-app:${{ github.sha }}
+          image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/concentrix-repo/web-app:${{ github.sha }}
           region: ${{ env.REGION }}
           flags: '--allow-unauthenticated --port=80'
 
       - name: Build and Push Gateway
         run: |
-          docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/gateway-app:${{ github.sha }} -f apps/gateway/Dockerfile .
-          docker push us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/gateway-app:${{ github.sha }}
+          docker build -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/concentrix-repo/gateway-app:${{ github.sha }} -f apps/gateway/Dockerfile .
+          docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/concentrix-repo/gateway-app:${{ github.sha }}
 
       - name: Deploy Gateway to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: gateway-app
-          image: us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/gateway-app:${{ github.sha }}
+          image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/concentrix-repo/gateway-app:${{ github.sha }}
           region: ${{ env.REGION }}
           flags: '--allow-unauthenticated --port=4000'
