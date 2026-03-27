@@ -48,6 +48,78 @@ const mockParseData = {
   ]
 };
 
+function useLocalWeather() {
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchWeather() {
+      try {
+        const ipRes = await fetch('https://freeipapi.com/api/json');
+        if (!ipRes.ok) throw new Error('IP API Error');
+        const ipData = await ipRes.json();
+        const city = ipData.cityName || 'Local Location';
+        const lat = ipData.latitude;
+        const lon = ipData.longitude;
+
+        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+        if (!weatherRes.ok) throw new Error('Weather API Error');
+        const weatherData = await weatherRes.json();
+        const temp = Math.round(weatherData.current_weather.temperature);
+        const code = weatherData.current_weather.weathercode;
+        
+        setWeather({ city, temp, code });
+      } catch (err) {
+        console.error('Weather fetch error:', err);
+        setWeather({ city: 'Earth', temp: 22, code: 0 }); // Fallback
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchWeather();
+  }, []);
+
+  return { weather, loading };
+}
+
+function WeatherWidget({ isDark }) {
+  const { weather, loading } = useLocalWeather();
+  
+  const hour = new Date().getHours();
+  let greeting = 'Good Evening';
+  if (hour >= 5 && hour < 12) greeting = 'Good Morning';
+  else if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+
+  if (loading) {
+    return (
+      <div className={`flex items-center gap-3 px-5 py-2.5 rounded-full backdrop-blur-xl border ${isDark ? 'bg-zinc-900/50 border-white/10' : 'bg-white/80 border-slate-200'} shadow-[0_0_30px_rgba(0,0,0,0.3)]`}>
+        <div className={`w-4 h-4 rounded-full animate-pulse ${isDark ? 'bg-zinc-700' : 'bg-slate-300'}`} />
+        <div className={`h-3 w-32 rounded animate-pulse ${isDark ? 'bg-zinc-700' : 'bg-slate-300'}`} />
+      </div>
+    );
+  }
+
+  let WeatherIcon = Sun;
+  if (weather.code >= 1 && weather.code <= 3) WeatherIcon = Cloud;
+  if (weather.code >= 51 && weather.code <= 67) WeatherIcon = CloudRain;
+  if (weather.code >= 71 && weather.code <= 77) WeatherIcon = CloudSnow;
+  if (weather.code >= 95 && weather.code <= 99) WeatherIcon = CloudLightning;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`flex items-center gap-3 px-5 py-2.5 rounded-full backdrop-blur-2xl border transition-all shadow-[0_0_30px_rgba(0,0,0,0.3)] ${isDark ? 'bg-zinc-900/60 border-white/10 hover:bg-zinc-800' : 'bg-white/80 border-slate-200 hover:bg-white'}`}
+    >
+      <WeatherIcon className={`w-4 h-4 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
+      <span className={`text-sm font-semibold tracking-tight ${isDark ? 'text-zinc-200' : 'text-slate-700'}`}>
+        {greeting}, <span className={isDark ? 'text-zinc-400 font-medium' : 'text-slate-500 font-medium'}>{weather.city} • {weather.temp}°C</span>
+      </span>
+    </motion.div>
+  );
+}
+
 export default function TravelVisualizer() {
   const [inputText, setInputText] = useState('');
   const [isParsing, setIsParsing] = useState(false);
