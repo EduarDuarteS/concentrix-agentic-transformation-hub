@@ -171,6 +171,65 @@ REGLAS ABSOLUTAS DEL PROMPT QUE VAS A GENERAR (EN INGLÉS):
   }
 });
 
+// API: Real-time Itinerary Parser (Strict JSON Contract)
+app.post('/api/parse-itinerary', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: 'Text is required' });
+    
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ error: 'GEMINI_API_KEY no conf en el Gateway' });
+    }
+
+    const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-3.1-pro-preview:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const systemInstruction = `
+You are an expert travel assistant. Parse the following messy, unstructured text into a STRICT JSON object representing a multi-day travel itinerary.
+Return ONLY valid JSON that matches exactly this contract:
+{
+  "title": "string",
+  "days": [
+    {
+      "dayNumber": number,
+      "label": "string",
+      "city": "string",
+      "location": { "name": "string", "lat": number, "lng": number },
+      "hotel": "string or null",
+      "transportation": "string or null",
+      "activities": [ "string", "string" ]
+    }
+  ],
+  "locations": [ { "name": "string", "lat": number, "lng": number } ]
+}
+Make sure to infer dates/days intelligently from the text.
+    `;
+
+    const payload = {
+      contents: [{ role: 'user', parts: [{ text: text }] }],
+      systemInstruction: { role: 'system', parts: [{ text: systemInstruction }] },
+      generationConfig: { 
+        temperature: 0.1,
+        responseMimeType: "application/json"
+      }
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const data = await response.json();
+    let resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+    
+    res.json({ itinerary: JSON.parse(resultText) });
+  } catch (error: any) {
+    console.error('Itinerary Parse Error:', error);
+    res.status(500).json({ error: `Error procesando el texto: ${error.message}` });
+  }
+});
+
 initRedis().catch(console.error);
 
 server.listen(Number(PORT), '0.0.0.0', () => {
