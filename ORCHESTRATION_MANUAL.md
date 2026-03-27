@@ -39,9 +39,20 @@ To prevent "Vibecoding Dissonance" and ensure code quality, we implement a stric
 *   **Claude Code CLI (The Muscle):** Lead Backend & DevOps Engineer. Executes infrastructure tasks, manages the monorepo, and deploys containers to GCP. 
 *   **Sifu (The Eye):** Shadow Architect. Provides non-invasive observability, ADR (Architecture Decision Record) documentation in Notion, and real-time auditing.
 
+## 4. Capacidades Avanzadas (La Singularidad de Sifu)
+
+### **A. Auto-Programación (Meta-Graph Engine)**
+Nuestra factoría tiene la capacidad de **auto-reproducirse**. Si un requerimiento supera la lógica actual, el `Meta-Graph Engine` arquitacta y programa un nuevo flujo de LangGraph en Python de forma autónoma, integrándolo al sistema en segundos.
+
+### **B. Auto-Sanación de Código (Self-Healing Coder)**
+A diferencia de los LLMs tradicionales que pueden entregar código roto, nuestro sistema utiliza un **bucle de auto-corrección físico**:
+1. El `ZTA Validator` ejecuta un build real del código generado.
+2. Si el build falla, el `Self-Healing Coder` analiza los logs de error de la terminal.
+3. El agente genera un fix quirúrgico y lo re-inyecta hasta que la compilación es exitosa.
+
 ---
 
-## 4. Architectural Pillars (Sifu 5.2 Refinement)
+## 5. Architectural Pillars (Sifu 5.2 Refinement)
 
 ### **A. Infrastructure: Pure GCP Serverless**
 We transitioned from third-party hosting (Firebase) to a **100% Native GCP** stack:
