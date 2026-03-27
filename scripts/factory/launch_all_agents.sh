@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "📐 Sifu: Lanzando Escuadrón de Agentes NHITL (Sifu 5.2 - FULL STACK)..."
+echo "📐 Sifu: Lanzando Escuadrón de Agentes NHITL (Sifu 5.2 - COMMAND & CONTROL)..."
 
 # 1. Gateway de Eventos (Node.js)
 cd /home/node/.openclaw/workspace/apps/gateway && ts-node index.ts &
@@ -17,17 +17,21 @@ echo "✅ IA Architect Engine iniciado"
 python3 /home/node/.openclaw/workspace/scripts/factory/prompt_agent_worker.py &
 echo "✅ Prompt Architect Agent iniciado"
 
-# 5. Lead Coder (Muscle)
+# 5. Executive Summarizer (Reporting)
+python3 /home/node/.openclaw/workspace/scripts/factory/summary_agent_worker.py &
+echo "✅ Executive Summarizer iniciado"
+
+# 6. Lead Coder (Muscle)
 python3 /home/node/.openclaw/workspace/scripts/factory/coder_agent_worker.py &
 echo "✅ Lead Coder Agent iniciado"
 
-# 6. Git Automator (DevOps)
+# 7. Git Automator (DevOps)
 python3 /home/node/.openclaw/workspace/scripts/factory/git_agent_worker.py &
 echo "✅ Git Automator Agent iniciado"
 
-# 7. Knowledge Manager (Scribe)
+# 8. Knowledge Manager (Scribe)
 python3 /home/node/.openclaw/workspace/scripts/factory/docu_agent_worker.py &
 echo "✅ Knowledge Manager iniciado"
 
-echo "🚀 Fábrica Autónoma operando en 7 carriles paralelos."
-echo "🎯 Sistema listo para la demostración técnica."
+echo "🚀 Fábrica Autónoma operando en 8 carriles paralelos."
+echo "🎯 La orquesta completa está en posición para Concentrix."
