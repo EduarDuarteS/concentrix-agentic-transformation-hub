@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useBusinessStore } from '../../store/useBusinessStore';
 import { Shield, Zap, Globe, Cpu } from 'lucide-react';
 
@@ -36,12 +37,12 @@ const HomeView = () => {
             The next generation of Autonomous Solution Architecture. Converting voice requirements into production-ready CCaaS infrastructure in real-time.
           </p>
           <div className="flex gap-4 pt-4">
-            <div className="px-6 py-3 rounded-2xl bg-white text-black font-bold text-sm cursor-pointer hover:bg-zinc-200 transition-colors">
+            <Link to="/canvas" className="px-6 py-3 rounded-2xl bg-white text-black font-bold text-sm cursor-pointer hover:bg-zinc-200 transition-colors inline-block">
               Launch Simulation
-            </div>
-            <div className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-sm cursor-pointer hover:bg-white/10 transition-colors">
+            </Link>
+            <Link to="/command" className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-sm cursor-pointer hover:bg-white/10 transition-colors inline-block">
               View Architecture
-            </div>
+            </Link>
           </div>
         </div>
       </div>
