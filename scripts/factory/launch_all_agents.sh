@@ -2,7 +2,7 @@
 echo "📐 Sifu: Lanzando Fábrica de Software Autónoma (Sifu 5.2 - SELF-PROGRAMMING EDITION)..."
 
 # 1. Gateway de Eventos
-cd /home/node/.openclaw/workspace/apps/gateway && ts-node index.ts &
+cd /home/node/.openclaw/workspace/apps/gateway && npx ts-node index.ts &
 echo "✅ Event Gateway iniciado"
 
 # 2. Monitor de Resiliencia

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import BusinessDashboard from './components/business/BusinessDashboard';
 import CommandCenter from './components/command/CommandCenter';
 import LiveCanvas from './components/canvas/LiveCanvas';
+import HomeView from './components/home/HomeView';
 import { useBusinessStore } from './store/useBusinessStore';
 import { useCanvasStore } from './store/useCanvasStore';
 
@@ -50,7 +51,7 @@ const App = () => {
         {/* Global Sidebar (Floating Glass) */}
         <aside className="fixed left-6 top-6 bottom-6 w-64 z-50 bg-zinc-950/50 backdrop-blur-2xl border border-white/5 rounded-3xl p-6 hidden lg:flex flex-col">
           <div className="flex items-center gap-3 mb-12">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center justify-center font-bold text-white text-xl">S</div>
+            <Link to="/" className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center justify-center font-bold text-white text-xl">S</Link>
             <div>
               <h1 className="text-lg font-bold text-white leading-tight tracking-tight">Sifu <span className="text-indigo-500 font-medium">5.2</span></h1>
               <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">NHITL Factory</p>
@@ -58,6 +59,10 @@ const App = () => {
           </div>
 
           <nav className="flex-1 space-y-2">
+            <Link to="/" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/5 hover:text-white transition-all group">
+              <span className="text-zinc-600 group-hover:text-indigo-400 transition-colors italic font-mono text-xs">00</span>
+              <span className="font-medium tracking-tight">Home Overview</span>
+            </Link>
             <Link to="/business" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/5 hover:text-white transition-all group">
               <span className="text-zinc-600 group-hover:text-indigo-400 transition-colors italic font-mono text-xs">01</span>
               <span className="font-medium tracking-tight">Strategic ROI</span>
@@ -88,10 +93,10 @@ const App = () => {
         {/* Content Area */}
         <main className="lg:pl-80 p-8 min-h-screen relative z-10">
           <Routes>
+            <Route path="/" element={<HomeView />} />
             <Route path="/business" element={<BusinessDashboard />} />
             <Route path="/command" element={<CommandCenter />} />
             <Route path="/canvas" element={<LiveCanvas />} />
-            <Route path="/" element={<BusinessDashboard />} />
           </Routes>
         </main>
 
