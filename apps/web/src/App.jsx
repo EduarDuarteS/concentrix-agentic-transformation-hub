@@ -15,7 +15,7 @@ const App = () => {
   useEffect(() => {
     // Gateway Connection Logic (Auto-detecting prod vs dev)
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const gatewayHost = import.meta.env.VITE_GATEWAY_URL || 'localhost:4000';
+    const gatewayHost = import.meta.env.VITE_GATEWAY_URL || 'gateway-app-7998411376.us-central1.run.app';
     const wsUrl = `${protocol}//${gatewayHost}`;
     
     console.log(`🔗 Sifu: Conectando a ${wsUrl}`);
