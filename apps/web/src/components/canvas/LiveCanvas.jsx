@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { Activity, AlertTriangle, CheckCircle2, MinusCircle, UserX, MessageSquareQuote } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
 
 const SentimentColor = (sentiment) => {
   switch(sentiment) {
@@ -78,18 +77,18 @@ export default function LiveCanvas() {
                 <div className={`w-2 h-2 rounded-full animate-pulse ${isAlarming ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
                 <h2 className="text-sm font-semibold tracking-wide text-zinc-200">Live Agent Stream</h2>
               </div>
-              <Badge variant="outline" className="font-mono text-[10px] border-white/10 bg-black/40 text-zinc-400 px-2">
+              <span className="inline-flex items-center justify-center font-mono text-[10px] border border-white/10 bg-black/40 text-zinc-400 px-2 py-0.5 rounded-full">
                 {agent_id}
-              </Badge>
+              </span>
             </div>
             
             <div className="p-8 flex flex-col flex-1 justify-between gap-6">
               
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-4">
-                  <Badge className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium px-3 py-1">
+                  <span className="inline-flex items-center justify-center bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium px-3 py-1 rounded-full text-xs font-semibold">
                     {payload.intent}
-                  </Badge>
+                  </span>
                   <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-500">
                    <span>Confidence:</span> 
                    <span className="text-zinc-300">{(payload.confidence * 100).toFixed(0)}%</span>
