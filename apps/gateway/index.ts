@@ -119,27 +119,42 @@ app.post('/api/requirement', async (req, res) => {
   }
 });
 
-// API: The Blueprint Engine (Gemini 3.1 Pro via AI Studio)
+// API: The Blueprint Engine (Vertex AI / Global Zone - 3.1 Pro)
 app.post('/api/blueprint', async (req, res) => {
   try {
     const { buffer } = req.body;
     if (!buffer) return res.status(400).json({ error: 'Buffer is required' });
     
     if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY no configurada en el Gateway' });
+      return res.status(500).json({ error: 'GEMINI_API_KEY no conf en el Gateway' });
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-3.1-pro-preview',
-      systemInstruction: 'Eres un Arquitecto de Software destilando audio ruidoso de clientes. Ignora muletillas. Extrae la intención de negocio y genera un PROMPT DIRECTO y detallado para que un UI Generative AI (Stitch/Cursor) construya un componente React/Tailwind Glassmorphic, colores zinc-950/indigo-500 y lucide-react. No saludes, devuelve SOLO el prompt final en inglés.'
+    const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-3.1-pro-preview:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const systemInstruction = 'Eres un Arquitecto de Software destilando audio ruidoso de clientes. Ignora muletillas. Extrae la intención de negocio y genera un PROMPT DIRECTO y detallado para que un UI Generative AI (Stitch/Cursor) construya un componente React/Tailwind Glassmorphic, usando zinc-950, indigo-500 y lucide-react. No saludes, devuelve SOLO el prompt en inglés.';
+
+    const payload = {
+      contents: [{ role: 'user', parts: [{ text: buffer }] }],
+      systemInstruction: { role: 'system', parts: [{ text: systemInstruction }] },
+      generationConfig: { temperature: 0.2 }
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
 
-    const result = await model.generateContent(buffer);
-    res.json({ blueprint: result.response.text() });
+    if (!response.ok) {
+       const errorData = await response.text();
+       throw new Error(`Vertex API Error: ${response.status} - ${errorData}`);
+    }
+
+    const data = await response.json();
+    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    res.json({ blueprint: resultText });
   } catch (error: any) {
-    console.error('Gemini Error:', error);
-    res.status(500).json({ error: `Error procesando el Blueprint: ${error.message}` });
+    console.error('Vertex AI Error:', error);
+    res.status(500).json({ error: `Error procesando Blueprint: ${error.message}` });
   }
 });
 
