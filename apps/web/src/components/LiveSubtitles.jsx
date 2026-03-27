@@ -6,8 +6,10 @@ export function LiveSubtitles() {
   const [subtitles, setSubtitles] = useState({ candidate: '', interviewer: '' });
 
   useEffect(() => {
-    // URL del Hub Gateway
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:4000';
+    // URL del Hub Gateway (Protected for Docker Build)
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const gatewayHost = import.meta.env.VITE_GATEWAY_URL || 'gateway-app-7998411376.us-central1.run.app';
+    const wsUrl = `${protocol}//${gatewayHost}`;
     let socket;
     
     const connect = () => {

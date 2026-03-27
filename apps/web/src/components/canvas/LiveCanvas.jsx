@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { Activity, AlertTriangle, CheckCircle2, MinusCircle, UserX, MessageSquareQuote } from 'lucide-react';
+import { LiveSubtitles } from '../LiveSubtitles';
 
 const SentimentColor = (sentiment) => {
   switch(sentiment) {
@@ -169,6 +170,9 @@ export default function LiveCanvas() {
         </div>
         
       </div>
+
+      {/* STT Engine - Sidecar Injected */}
+      <LiveSubtitles />
     </div>
   );
 }
