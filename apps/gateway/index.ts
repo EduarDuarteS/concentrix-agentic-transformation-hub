@@ -8,7 +8,14 @@ const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+let REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+
+// ZTA Self-Healing: Forzar TLS (rediss://) si detectamos Upstash Serverless
+// Cura crasheos silenciosos por secretos de GitHub pegados sin la 's'
+if (REDIS_URL.includes('upstash.io') && REDIS_URL.startsWith('redis://')) {
+  console.warn('🛡️ ZTA: Detectada URL de Upstash sin TLS. Aplicando Auto-Heal a rediss://');
+  REDIS_URL = REDIS_URL.replace('redis://', 'rediss://');
+}
 
 const redisPublisher = createClient({ url: REDIS_URL });
 const redisSubscriber = createClient({ url: REDIS_URL });
