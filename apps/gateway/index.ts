@@ -33,19 +33,23 @@ wss.on('connection', (ws: WebSocket) => {
 
 // Redis Subscriber: Escucha eventos de los Workers y los manda al Frontend
 const initRedis = async () => {
-  await redisPublisher.connect();
-  await redisSubscriber.connect();
-  
-  await redisSubscriber.subscribe('sensei:live:telemetry', (message) => {
-    // Difundir a todos los clientes WS conectados (Dashboard/Canvas)
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
+  try {
+    await redisPublisher.connect();
+    await redisSubscriber.connect();
+    
+    await redisSubscriber.subscribe('sensei:live:telemetry', (message) => {
+      // Difundir a todos los clientes WS conectados (Dashboard/Canvas)
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
     });
-  });
-  
-  console.log('📡 Sifu Gateway: Redis Pub/Sub activo');
+    
+    console.log('📡 Sifu Gateway: Redis Pub/Sub activo');
+  } catch (e) {
+    console.error('❌ Sifu Gateway: Fallo crítico de conexión a Redis durante el arranque. El bus de eventos estático.', e);
+  }
 };
 
 // API: Recibir requerimientos manuales o de audio
@@ -61,6 +65,6 @@ app.post('/api/requirement', async (req, res) => {
 
 initRedis().catch(console.error);
 
-server.listen(PORT, () => {
-  console.log(`🚀 Sifu Event Gateway corriendo en http://localhost:${PORT}`);
+server.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 Sifu Event Gateway corriendo en tcp://0.0.0.0:${PORT}`);
 });
