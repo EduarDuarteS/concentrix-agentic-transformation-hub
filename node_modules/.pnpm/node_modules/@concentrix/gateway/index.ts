@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { createClient } from 'redis';
@@ -6,6 +7,7 @@ import { RequirementEventSchema } from '@concentrix/event-schemas';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
+app.use(cors());
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
