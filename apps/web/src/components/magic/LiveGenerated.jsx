@@ -23,15 +23,31 @@ export default function TravelVisualizer() {
   const [isParsing, setIsParsing] = useState(false);
   const [itinerary, setItinerary] = useState(null);
 
-  const handleParse = () => {
+  const handleParse = async () => {
     if (!inputText.trim()) return;
     setIsParsing(true);
     setItinerary(null);
     
-    setTimeout(() => {
+    try {
+      const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL?.replace('wss://', 'https://').replace('ws://', 'http://') 
+        || 'https://gateway-app-7998411376.us-central1.run.app';
+      
+      const response = await fetch(`${GATEWAY_URL}/api/parse-itinerary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: inputText })
+      });
+      
+      if (!response.ok) throw new Error('Failed to parse itinerary');
+      
+      const data = await response.json();
+      setItinerary(data.itinerary || []);
+    } catch (err) {
+      console.error('AI Parsing failed, using robust mock template fallback:', err);
       setItinerary(mockParseData);
+    } finally {
       setIsParsing(false);
-    }, 1500);
+    }
   };
 
   const containerVariants = {
