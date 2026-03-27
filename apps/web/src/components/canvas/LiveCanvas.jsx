@@ -1,104 +1,175 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { useCanvasStore } from '../../store/useCanvasStore';
-import { useBusinessStore } from '../../store/useBusinessStore';
-import { Code2, Play, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, MinusCircle, UserX, MessageSquareQuote } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 
-const LiveCanvas = () => {
-  const { logs } = useCanvasStore();
-  const { setStatus } = useBusinessStore();
-  const [activeCode, setActiveCode] = useState(null);
+const SentimentColor = (sentiment) => {
+  switch(sentiment) {
+    case 'Positive': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+    case 'Negative': return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
+    case 'Frustrated': return 'text-red-500 bg-red-500/10 border-red-500/30';
+    default: return 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20';
+  }
+};
 
-  // Buscar el último código generado en los logs
-  const lastCodeGen = [...logs].reverse().find(l => l.msg.includes('Módulo generado') || l.type === 'SUCCESS' && l.agent === 'LeadCoder');
+const SentimentIcon = ({ sentiment }) => {
+  switch(sentiment) {
+    case 'Positive': return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
+    case 'Negative': return <AlertTriangle className="w-4 h-4 text-orange-500" />;
+    case 'Frustrated': return <UserX className="w-4 h-4 text-red-500 animate-pulse" />;
+    default: return <MinusCircle className="w-4 h-4 text-zinc-500" />;
+  }
+};
+
+export default function LiveCanvas() {
+  // Aislar asincrónicamente el arbol: Solo suscribirse al Array del global store
+  const logs = useCanvasStore(state => state.logs);
+  
+  // Extraer y aislar solo el stream de eventos de sentimiento CCaaS
+  const sentimentLogs = useMemo(() => {
+    return logs
+      .filter(log => log?.type === 'ccaas_sentiment_stream')
+      .reverse(); // El más reciente de primero
+  }, [logs]);
+
+  const latestEvent = sentimentLogs[0];
+  const historyEvents = sentimentLogs.slice(1, 6);
+
+  if (!latestEvent) {
+    return (
+      <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 h-full">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-4xl font-bold text-white tracking-tight">Live Canvas</h2>
+            <p className="text-zinc-500 mt-1">CCaaS Sentiment Live Telemetry Simulation.</p>
+          </div>
+        </div>
+        <div className="w-full h-[60vh] flex flex-col items-center justify-center text-zinc-500 font-mono text-[11px] bg-black/20 rounded-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none opacity-40"></div>    
+          <Activity className="w-6 h-6 mb-3 animate-pulse text-zinc-700" />
+          <p>Awaiting CCaaS Telemetry Stream via ZTA WebSockets...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { payload, agent_id } = latestEvent;
+  const isAlarming = payload.sentiment === 'Negative' || payload.sentiment === 'Frustrated';
 
   return (
-    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 h-full flex flex-col">
+      <div className="flex justify-between items-center shrink-0">
         <div>
           <h2 className="text-4xl font-bold text-white tracking-tight">Live Canvas</h2>
-          <p className="text-zinc-500 mt-1">Real-time code generation and autonomous assembly.</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20">
-            <Play size={18} />
-            Run Factory
-          </button>
+          <p className="text-zinc-500 mt-1">CCaaS Sentiment Live Telemetry Simulation.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Code Viewer Panel */}
-        <div className="rounded-[2.5rem] bg-zinc-900/40 border border-white/5 backdrop-blur-3xl p-8 min-h-[500px] flex flex-col relative overflow-hidden group">
-          <div className="absolute inset-0 opacity-5 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none"></div>
-          
-          <div className="flex justify-between items-center mb-6 relative z-10">
-            <div className="flex items-center gap-2">
-              <Code2 size={16} className="text-indigo-400" />
-              <h4 className="text-sm font-mono text-zinc-400 uppercase tracking-widest">Autonomous_JSX_Stream</h4>
+      <div className="w-full flex-1 flex gap-6 text-zinc-100 font-sans min-h-[500px]">
+        
+        {/* Principal Card */}
+        <div className="flex-1 flex flex-col h-full rounded-2xl">
+          <div className={`flex flex-col h-full bg-zinc-950/60 backdrop-blur-3xl border ${isAlarming ? 'border-red-500/40 shadow-[0_0_30px_rgba(239,68,68,0.15)] ring-1 ring-red-500/20' : 'border-white/5'} rounded-3xl overflow-hidden relative transition-all duration-500`}>
+            
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            
+            <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-black/20">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 rounded-full animate-pulse ${isAlarming ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
+                <h2 className="text-sm font-semibold tracking-wide text-zinc-200">Live Agent Stream</h2>
+              </div>
+              <Badge variant="outline" className="font-mono text-[10px] border-white/10 bg-black/40 text-zinc-400 px-2">
+                {agent_id}
+              </Badge>
             </div>
-            <div className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400">
-              STABLE_V5.2
+            
+            <div className="p-8 flex flex-col flex-1 justify-between gap-6">
+              
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-center gap-4">
+                  <Badge className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium px-3 py-1">
+                    {payload.intent}
+                  </Badge>
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-500">
+                   <span>Confidence:</span> 
+                   <span className="text-zinc-300">{(payload.confidence * 100).toFixed(0)}%</span>
+                  </div>
+                </div>
+
+                <div className="relative group mt-6">
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-4 font-semibold flex items-center gap-2">
+                    <MessageSquareQuote className="w-3 h-3"/> Active Transcript
+                  </p>
+                  <div className="p-6 rounded-2xl bg-black/40 border border-white/5 relative shadow-inner">
+                    <div className={`absolute -left-[1px] top-6 bottom-6 w-[2px] rounded-full transition-colors duration-500 ${isAlarming ? 'bg-red-500/50' : 'bg-zinc-700'}`}></div>
+                    <p className="text-xl md:text-2xl font-light leading-relaxed text-zinc-200 tracking-wide italic">
+                      "{payload.transcript_snippet}"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/5 bg-black/20 p-5 shadow-inner mt-4">
+                <div className="flex justify-between items-center mb-5">
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold">AI Sentiment Assessment</p>
+                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border ${SentimentColor(payload.sentiment)}`}>
+                    <SentimentIcon sentiment={payload.sentiment} />
+                    <span className="text-[11px] font-bold tracking-widest uppercase">{payload.sentiment}</span>
+                  </div>
+                </div>
+
+                {isAlarming && (
+                  <div className="pt-5 border-t border-red-900/30 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    <p className="text-[10px] text-red-500/90 uppercase tracking-widest mb-4 font-bold flex items-center gap-2">
+                      <AlertTriangle className="w-3 h-3" /> Churn Risk Detected — Suggested AI Workflows
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <button className="px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider bg-[#09090b] border border-red-900/50 text-red-100 hover:bg-red-900/20 transition-colors shadow-sm">
+                        10% Discount (3mo)
+                      </button>
+                      <button className="px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider bg-[#09090b] border border-red-900/50 text-red-100 hover:bg-red-900/20 transition-colors shadow-sm">
+                        Free Upgrade
+                      </button>
+                      <button className="px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider bg-[#09090b] border border-red-900/50 text-red-100 hover:bg-red-900/20 transition-colors shadow-sm">
+                        Waiver Late Fee
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
             </div>
           </div>
+        </div>
 
-          <div className="flex-1 bg-black/20 rounded-2xl p-6 font-mono text-sm text-zinc-500 overflow-auto relative z-10 border border-white/5">
-            {lastCodeGen ? (
-              <pre className="text-indigo-300">
-                <code>{`// NHITL Factory Output\n// Hash: ${Math.random().toString(16).slice(2, 10)}\n\nimport React from 'react';\n\nconst GeneratedComponent = () => {\n  return (\n    <div className="p-8 bg-zinc-900 rounded-3xl border border-white/5">\n      <h1 className="text-white">Concentrix AI Automation</h1>\n      <p>Automated deployment successful.</p>\n    </div>\n  );\n};\n\nexport default GeneratedComponent;`}</code>
-              </pre>
+        {/* Sidebar */}
+        <div className="w-[320px] hidden xl:flex flex-col border border-white/5 rounded-3xl bg-zinc-950/40 backdrop-blur-3xl overflow-hidden relative shadow-2xl">
+          <div className="absolute top-0 right-0 w-[1px] h-full bg-gradient-to-b from-transparent via-white/10 to-transparent"></div>
+          <div className="px-5 py-5 border-b border-white/5 bg-black/20">
+            <h3 className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+              History Log <span className="bg-zinc-800 text-zinc-300 px-1.5 rounded text-[9px]">{sentimentLogs.length}</span>
+            </h3>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-zinc-800">
+            {historyEvents.length === 0 ? (
+              <div className="text-center p-4 text-[10px] text-zinc-600 font-mono">Waiting for stream...</div>
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-center opacity-30">
-                <RotateCcw className="animate-spin mb-4" size={32} />
-                <p>Waiting for requirements...<br/>Start audio capture to trigger the factory.</p>
-              </div>
+              historyEvents.map((evt, idx) => (
+                <div key={evt.id || idx} className="p-4 rounded-2xl bg-zinc-900/40 border border-white/5 hover:bg-zinc-800/40 transition-colors duration-300 cursor-default">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[9px] font-mono text-zinc-500 bg-black/50 px-2 py-0.5 rounded">{evt.agent_id}</span>
+                    <SentimentIcon sentiment={evt.payload.sentiment} />
+                  </div>
+                  <p className="text-[10px] text-zinc-300 line-clamp-2 leading-relaxed italic border-l-2 border-zinc-700 pl-3">
+                    "{evt.payload.transcript_snippet}"
+                  </p>
+                </div>
+              ))
             )}
           </div>
-
-          <div className="mt-6 flex justify-between items-center relative z-10">
-            <p className="text-[10px] text-zinc-600 italic">"ZTA: Validation Layer Passed"</p>
-            <div className="flex gap-2">
-              <button className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-zinc-400">
-                <RotateCcw size={16} />
-              </button>
-              <button className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-2 hover:bg-emerald-500/20 transition-all">
-                <CheckCircle2 size={14} />
-                Approve & Deploy
-              </button>
-            </div>
-          </div>
         </div>
-
-        {/* Visual Preview / Simulation */}
-        <div className="rounded-[2.5rem] bg-indigo-500/5 border-2 border-dashed border-indigo-500/20 flex flex-col items-center justify-center p-12 text-center relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-50"></div>
-          
-          {lastCodeGen ? (
-            <div className="relative z-10 animate-in zoom-in-90 duration-500">
-               <div className="w-full max-w-sm p-8 bg-zinc-950 rounded-[2rem] border border-white/10 shadow-2xl">
-                  <div className="w-12 h-12 bg-indigo-500/20 rounded-xl mb-6 flex items-center justify-center text-indigo-400 font-bold text-xl">C</div>
-                  <h3 className="text-white text-xl font-bold mb-2">CCaaS Assistant</h3>
-                  <p className="text-zinc-500 text-sm mb-6">Agentic UI deployed via NHITL Factory.</p>
-                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-500 w-2/3"></div>
-                  </div>
-               </div>
-               <p className="mt-8 text-xs font-mono text-indigo-400 animate-pulse">RENDER_SUCCESS: READY_FOR_CX_VALIDATION</p>
-            </div>
-          ) : (
-            <>
-              <div className="w-20 h-20 rounded-3xl bg-zinc-900 border border-white/10 flex items-center justify-center mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></div>
-              </div>
-              <h3 className="text-white text-xl font-bold mb-2 tracking-tight">Visual Sandbox</h3>
-              <p className="text-zinc-500 max-w-xs leading-relaxed">
-                El componente se renderizará aquí automáticamente tras pasar la auditoría de seguridad.
-              </p>
-            </>
-          )}
-        </div>
+        
       </div>
     </div>
   );
-};
-
-export default LiveCanvas;
+}

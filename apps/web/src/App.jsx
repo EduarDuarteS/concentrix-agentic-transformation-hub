@@ -37,6 +37,8 @@ const App = () => {
           updateMetrics(data.payload);
         } else if (data.type === 'CODE_GENERATED') {
           addLog({ agent: 'LeadCoder', msg: `Módulo generado: ${data.payload.fileName}`, type: 'SUCCESS' });
+        } else if (data.type === 'ccaas_sentiment_stream') {
+          addLog(data);
         }
       } catch (e) {
         console.error('WS Data Error:', e);
