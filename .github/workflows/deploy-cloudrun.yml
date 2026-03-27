@@ -75,4 +75,5 @@ jobs:
           service: gateway-app
           image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/concentrix-repo/gateway-app:${{ github.sha }}
           region: ${{ env.REGION }}
+          env_vars: REDIS_URL=${{ secrets.REDIS_URL }}
           flags: '--allow-unauthenticated --port=4000'
