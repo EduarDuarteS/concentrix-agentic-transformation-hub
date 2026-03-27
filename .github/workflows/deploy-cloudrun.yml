@@ -1,0 +1,72 @@
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build and Push Web (Nginx)
+        run: |
+          docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/web-app:${{ github.sha }} -f apps/web/Dockerfile .
+          docker push us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/web-app:${{ github.sha }}
+
+      - name: Deploy Web to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: web-app
+          image: us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/web-app:${{ github.sha }}
+          region: ${{ env.REGION }}
+          flags: '--allow-unauthenticated'
+
+      - name: Build and Push Gateway
+        run: |
+          docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/gateway-app:${{ github.sha }} -f apps/gateway/Dockerfile .
+          docker push us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/gateway-app:${{ github.sha }}
+
+      - name: Deploy Gateway to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: gateway-app
+          image: us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/gateway-app:${{ github.sha }}
+          region: ${{ env.REGION }}
+          flags: '--allow-unauthenticated'

@@ -1,0 +1,15 @@
+{
+  "name": "concentrix-agentic-transformation-hub",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "prettier": "^3.2.5"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
