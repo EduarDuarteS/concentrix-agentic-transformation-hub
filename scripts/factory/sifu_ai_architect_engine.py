@@ -107,12 +107,24 @@ class SifuArchitectEngine:
                     for output in graph.stream(inputs):
                         # Publicar el razonamiento interno al bus para que se vea en el "Command Center"
                         node_name = list(output.keys())[0]
+                        node_data = output[node_name]
+                        
                         self.redis.publish("sensei:live:telemetry", json.dumps({
                             "type": "FACTORY_LOG",
                             "agent": node_name,
                             "message": f"Razonamiento completado en nodo: {node_name}",
                             "timestamp": datetime.now().isoformat()
                         }))
+
+                        # Si el nodo 'coder' genera código, emitimos una petición de escritura física
+                        if node_name == "coder":
+                            self.redis.publish("sensei:live:telemetry", json.dumps({
+                                "type": "CODE_GEN_REQUEST",
+                                "payload": {
+                                    "filePath": "apps/web/src/components/dynamic/AgentGeneratedComponent.jsx",
+                                    "code": node_data.get("infrastructure_code", "// No code generated")
+                                }
+                            }))
 
 if __name__ == "__main__":
     from datetime import datetime
