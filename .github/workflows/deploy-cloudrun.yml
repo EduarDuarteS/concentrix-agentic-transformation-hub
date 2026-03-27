@@ -28,6 +28,13 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Create Artifact Registry Repository (if not exists)
+        run: |
+          gcloud artifacts repositories create concentrix-repo \
+            --repository-format=docker \
+            --location=us-central1 \
+            --description="Docker repository for Sifu Factory" || true
+
       - name: Configure Docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
@@ -55,7 +62,7 @@ jobs:
           service: web-app
           image: us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/web-app:${{ github.sha }}
           region: ${{ env.REGION }}
-          flags: '--allow-unauthenticated'
+          flags: '--allow-unauthenticated --port=80'
 
       - name: Build and Push Gateway
         run: |
@@ -68,4 +75,4 @@ jobs:
           service: gateway-app
           image: us-central1-docker.pkg.dev/$PROJECT_ID/concentrix-repo/gateway-app:${{ github.sha }}
           region: ${{ env.REGION }}
-          flags: '--allow-unauthenticated'
+          flags: '--allow-unauthenticated --port=4000'

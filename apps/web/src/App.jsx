@@ -13,8 +13,13 @@ const App = () => {
   const updateMetrics = useBusinessStore((state) => state.updateMetrics);
 
   useEffect(() => {
-    // Gateway Connection Logic
-    const ws = new WebSocket('ws://localhost:4000');
+    // Gateway Connection Logic (Auto-detecting prod vs dev)
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const gatewayHost = import.meta.env.VITE_GATEWAY_URL || 'localhost:4000';
+    const wsUrl = `${protocol}//${gatewayHost}`;
+    
+    console.log(`🔗 Sifu: Conectando a ${wsUrl}`);
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       setSocketStatus('online');
