@@ -71,6 +71,15 @@ const initRedis = async () => {
       });
     });
 
+    // Suscripción de Sensilla Inyectada (STT Subtítulos en Vivo)
+    await redisSubscriber.subscribe('sensei:hud:insights', (message) => {
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
+    });
+
     console.log('📡 Sifu Gateway: Redis Pub/Sub activo');
   } catch (e) {
     console.warn('⚠️ Sifu Gateway: Fallo crítico de conexión a Redis durante el arranque. Usando fallback (Mock Local).');
