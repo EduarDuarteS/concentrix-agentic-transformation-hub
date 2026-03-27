@@ -8,10 +8,17 @@ const http_1 = require("http");
 const ws_1 = require("ws");
 const redis_1 = require("redis");
 const event_schemas_1 = require("@concentrix/event-schemas");
+const generative_ai_1 = require("@google/generative-ai");
 const app = (0, express_1.default)();
 const server = (0, http_1.createServer)(app);
 const wss = new ws_1.WebSocketServer({ server });
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+let REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+// ZTA Self-Healing: Forzar TLS (rediss://) si detectamos Upstash Serverless
+// Cura crasheos silenciosos por secretos de GitHub pegados sin la 's'
+if (REDIS_URL.includes('upstash.io') && REDIS_URL.startsWith('redis://')) {
+    console.warn('🛡️ ZTA: Detectada URL de Upstash sin TLS. Aplicando Auto-Heal a rediss://');
+    REDIS_URL = REDIS_URL.replace('redis://', 'rediss://');
+}
 const redisPublisher = (0, redis_1.createClient)({ url: REDIS_URL });
 const redisSubscriber = (0, redis_1.createClient)({ url: REDIS_URL });
 // ZTA: Evitar crasheo si falla la conexión (ECONNREFUSED)
@@ -57,6 +64,14 @@ const initRedis = async () => {
                 }
             });
         });
+        // Suscripción de Sensilla Inyectada (STT Subtítulos en Vivo)
+        await redisSubscriber.subscribe('sensei:hud:insights', (message) => {
+            wss.clients.forEach((client) => {
+                if (client.readyState === ws_1.WebSocket.OPEN) {
+                    client.send(message);
+                }
+            });
+        });
         console.log('📡 Sifu Gateway: Redis Pub/Sub activo');
     }
     catch (e) {
@@ -90,6 +105,28 @@ app.post('/api/requirement', async (req, res) => {
     }
     catch (e) {
         res.status(400).json({ error: 'Invalid schema', details: e });
+    }
+});
+// API: The Blueprint Engine (Gemini)
+app.post('/api/blueprint', async (req, res) => {
+    try {
+        const { buffer } = req.body;
+        if (!buffer)
+            return res.status(400).json({ error: 'Buffer is required' });
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(500).json({ error: 'GEMINI_API_KEY no configurada en el Gateway' });
+        }
+        const genAI = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-1.5-pro',
+            systemInstruction: 'Eres un Arquitecto de Software destilando audio ruidoso de clientes. Ignora muletillas. Extrae la intención de negocio y genera un PROMPT DIRECTO y detallado para que un UI Generative AI (Stitch/Cursor) construya un componente React/Tailwind Glassmorphic. No saludes, devuelve SOLO el prompt final en inglés.'
+        });
+        const result = await model.generateContent(buffer);
+        res.json({ blueprint: result.response.text() });
+    }
+    catch (error) {
+        console.error('Gemini Error:', error);
+        res.status(500).json({ error: `Error procesando el Blueprint: ${error.message}` });
     }
 });
 initRedis().catch(console.error);

@@ -89,6 +89,8 @@ async def audio_stream_task(device_index, speaker_name, redis_client):
                                         "is_final": False,
                                         "uid": current_uid
                                     }
+                                    if len(text) > 3: # Solo loguear si hay algo sustancial
+                                        print(f"🔹 [{speaker_name.upper()}]: {text}")
                                     await redis_client.publish("sensei:hud:insights", json.dumps(hud_payload))
                             else:
                                 if text:
@@ -185,11 +187,17 @@ async def main():
     print(f"🔊 [ENTREVISTADOR] Index Loopback (Teams/Zoom): {loopback_device}")
     
     try:
-        redis_client = aioredis.from_url("redis://localhost:6379", decode_responses=True)
+        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+        
+        # ZTA Auto-Heal: Upstash requires rediss://
+        if "upstash.io" in redis_url and redis_url.startswith("redis://"):
+            redis_url = redis_url.replace("redis://", "rediss://")
+            
+        redis_client = aioredis.from_url(redis_url, decode_responses=True)
         await redis_client.ping()
-        print("🧠 🟢 Conectado exitosamente a Redis Pub/Sub (Hub Message Bus)")
+        print(f"🧠 🟢 Conectado exitosamente a Redis Pub/Sub en: {redis_url}")
     except Exception as e:
-        print(f"❌ FATAL: No se pudo conectar a Redis localhost:6379 -> {e}")
+        print(f"❌ FATAL: No se pudo conectar a Redis -> {e}")
         return
 
     print("\n⚔️ SENSORY SHIELD IS LIVE. PUBLISHING TO THE REDIS RIVER. ⚔️\n")

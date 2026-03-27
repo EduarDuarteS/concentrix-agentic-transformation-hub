@@ -4,6 +4,8 @@ import BusinessDashboard from './components/business/BusinessDashboard';
 import CommandCenter from './components/command/CommandCenter';
 import LiveCanvas from './components/canvas/LiveCanvas';
 import HomeView from './components/home/HomeView';
+import LiveBuilder from './components/builder/LiveBuilder';
+import LiveGenerated from './components/magic/LiveGenerated';
 import { useBusinessStore } from './store/useBusinessStore';
 import { useCanvasStore } from './store/useCanvasStore';
 
@@ -82,6 +84,14 @@ const App = () => {
               <span className="text-zinc-600 group-hover:text-indigo-400 transition-colors italic font-mono text-xs">03</span>
               <span className="font-medium tracking-tight">Live Canvas</span>
             </Link>
+            <Link to="/builder" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/5 hover:text-white transition-all group">
+              <span className="text-zinc-600 group-hover:text-indigo-400 transition-colors italic font-mono text-xs">04</span>
+              <span className="font-medium tracking-tight">Live Builder</span>
+            </Link>
+            <Link to="/magic" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/5 hover:text-white transition-all group">
+              <span className="text-zinc-600 group-hover:text-indigo-400 transition-colors italic font-mono text-xs">05</span>
+              <span className="font-medium tracking-tight">Magic Canvas</span>
+            </Link>
           </nav>
 
           <div className="mt-auto pt-6 border-t border-white/5">
@@ -104,6 +114,8 @@ const App = () => {
             <Route path="/business" element={<BusinessDashboard />} />
             <Route path="/command" element={<CommandCenter />} />
             <Route path="/canvas" element={<LiveCanvas />} />
+            <Route path="/builder" element={<LiveBuilder />} />
+            <Route path="/magic" element={<LiveGenerated />} />
           </Routes>
         </main>
 

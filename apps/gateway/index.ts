@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { createClient } from 'redis';
 import { RequirementEventSchema } from '@concentrix/event-schemas';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
 const server = createServer(app);
@@ -113,6 +114,30 @@ app.post('/api/requirement', async (req, res) => {
     res.status(202).json({ status: 'queued', id: validated.id, mock: !isRedisConnected });
   } catch (e) {
     res.status(400).json({ error: 'Invalid schema', details: e });
+  }
+});
+
+// API: The Blueprint Engine (Gemini)
+app.post('/api/blueprint', async (req, res) => {
+  try {
+    const { buffer } = req.body;
+    if (!buffer) return res.status(400).json({ error: 'Buffer is required' });
+    
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ error: 'GEMINI_API_KEY no configurada en el Gateway' });
+    }
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-pro',
+      systemInstruction: 'Eres un Arquitecto de Software destilando audio ruidoso de clientes. Ignora muletillas. Extrae la intención de negocio y genera un PROMPT DIRECTO y detallado para que un UI Generative AI (Stitch/Cursor) construya un componente React/Tailwind Glassmorphic. No saludes, devuelve SOLO el prompt final en inglés.'
+    });
+
+    const result = await model.generateContent(buffer);
+    res.json({ blueprint: result.response.text() });
+  } catch (error: any) {
+    console.error('Gemini Error:', error);
+    res.status(500).json({ error: `Error procesando el Blueprint: ${error.message}` });
   }
 });
 
