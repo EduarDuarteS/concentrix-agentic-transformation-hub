@@ -5,8 +5,12 @@ import { ShieldAlert, Zap, LayoutTemplate } from 'lucide-react';
 import BusinessDashboard from "./BusinessDashboard";
 import CommandCenter from "./CommandCenter";
 import LiveCanvas from "./LiveCanvas";
+import { useSifuWebSocket } from '@/store/useSifuWebSocket';
 
 export default function MissionControl() {
+  // ZTA: Hook Maestro - Maneja WS en Background Transientmente
+  useSifuWebSocket();
+
   return (
     <div className="h-screen w-screen overflow-hidden bg-background text-foreground flex flex-col font-sans">
       {/* Global Header */}
