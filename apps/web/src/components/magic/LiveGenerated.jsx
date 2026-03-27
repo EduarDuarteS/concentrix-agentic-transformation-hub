@@ -55,12 +55,13 @@ function useLocalWeather() {
   useEffect(() => {
     async function fetchWeather() {
       try {
-        const ipRes = await fetch('https://freeipapi.com/api/json');
-        if (!ipRes.ok) throw new Error('IP API Error');
-        const ipData = await ipRes.json();
-        const city = ipData.cityName || 'Local Location';
-        const lat = ipData.latitude;
-        const lon = ipData.longitude;
+        // Usamos GeoJS en vez de freeipapi porque permite CORS nativamente
+        const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json');
+        if (!geoRes.ok) throw new Error('Geo API Error');
+        const geoData = await geoRes.json();
+        const city = geoData.city || 'Local Location';
+        const lat = parseFloat(geoData.latitude);
+        const lon = parseFloat(geoData.longitude);
 
         const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
         if (!weatherRes.ok) throw new Error('Weather API Error');
