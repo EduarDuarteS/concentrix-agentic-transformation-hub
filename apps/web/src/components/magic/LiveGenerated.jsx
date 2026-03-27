@@ -49,7 +49,7 @@ export default function TravelVisualizer() {
 
   return (
     <div className="h-full w-full bg-[#09090b] text-zinc-100 p-6 md:p-12 overflow-y-auto font-sans selection:bg-indigo-500/30">
-      <div className="max-w-4xl mx-auto space-y-12 pb-24">
+      <div className="max-w-6xl mx-auto space-y-12 pb-24">
         {/* Header */}
         <div className="text-center space-y-4 pt-8">
           <motion.div
@@ -133,50 +133,80 @@ export default function TravelVisualizer() {
 
             {itinerary && (
               <motion.div
-                key="timeline"
-                variants={containerVariants}
-                initial="hidden"
-                animate="show"
-                className="relative space-y-8"
+                key="timeline-and-json"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24"
               >
-                {/* Vertical Line */}
-                <div className="absolute left-[2.25rem] md:left-32 top-8 bottom-8 w-px bg-gradient-to-b from-indigo-500/50 via-zinc-800 to-transparent" />
-                
-                {itinerary.map((item) => (
-                  <motion.div key={item.id} variants={itemVariants} className="relative flex items-start gap-6 md:gap-16 group z-10">
-                    
-                    {/* Time (Desktop) */}
-                    <div className="hidden md:block w-32 pt-5 text-right">
-                      <span className="text-sm font-bold text-zinc-500 font-mono uppercase tracking-widest">{item.time}</span>
-                    </div>
-
-                    {/* Node Icon */}
-                    <div className="relative flex-shrink-0 w-[4.5rem] h-[4.5rem] rounded-2xl bg-zinc-950 border border-white/10 flex items-center justify-center shadow-xl group-hover:border-indigo-500/60 group-hover:bg-indigo-500/10 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] transition-all duration-500">
-                      <div className="text-zinc-400 group-hover:text-indigo-400 transition-colors duration-500 scale-110">
-                        {iconMap[item.iconType]}
-                      </div>
-                    </div>
-
-                    {/* Content Card */}
-                    <div className="flex-1">
-                      {/* Time (Mobile) */}
-                      <div className="md:hidden mb-3">
-                        <span className="text-[10px] font-bold text-indigo-400 font-mono uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-lg">{item.time}</span>
-                      </div>
+                {/* Vertical Timeline */}
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                  className="relative space-y-8"
+                >
+                  {/* Vertical Line */}
+                  <div className="absolute left-[2.25rem] md:left-32 top-8 bottom-8 w-px bg-gradient-to-b from-indigo-500/50 via-zinc-800 to-transparent" />
+                  
+                  {itinerary.map((item) => (
+                    <motion.div key={item.id} variants={itemVariants} className="relative flex items-start gap-6 md:gap-16 group z-10">
                       
-                      <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-3xl p-6 md:p-8 hover:bg-zinc-900/70 hover:border-white/10 transition-all hover:translate-x-2 duration-500">
-                        <h3 className="text-xl md:text-2xl font-bold text-white mb-3 tracking-tight">{item.activity}</h3>
-                        <div className="flex items-center gap-3 text-zinc-400">
-                          <div className="p-1.5 rounded-full bg-rose-500/10">
-                            <MapPin className="w-4 h-4 text-rose-500" />
-                          </div>
-                          <span className="text-base font-medium">{item.location}</span>
+                      {/* Time (Desktop) */}
+                      <div className="hidden md:block w-32 pt-5 text-right">
+                        <span className="text-sm font-bold text-zinc-500 font-mono uppercase tracking-widest">{item.time}</span>
+                      </div>
+
+                      {/* Node Icon */}
+                      <div className="relative flex-shrink-0 w-[4.5rem] h-[4.5rem] rounded-2xl bg-zinc-950 border border-white/10 flex items-center justify-center shadow-xl group-hover:border-indigo-500/60 group-hover:bg-indigo-500/10 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] transition-all duration-500">
+                        <div className="text-zinc-400 group-hover:text-indigo-400 transition-colors duration-500 scale-110">
+                          {iconMap[item.iconType]}
                         </div>
                       </div>
-                    </div>
 
-                  </motion.div>
-                ))}
+                      {/* Content Card */}
+                      <div className="flex-1">
+                        {/* Time (Mobile) */}
+                        <div className="md:hidden mb-3">
+                          <span className="text-[10px] font-bold text-indigo-400 font-mono uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-lg">{item.time}</span>
+                        </div>
+                        
+                        <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-3xl p-6 md:p-8 hover:bg-zinc-900/70 hover:border-white/10 transition-all hover:translate-x-2 duration-500">
+                          <h3 className="text-xl md:text-2xl font-bold text-white mb-3 tracking-tight">{item.activity}</h3>
+                          <div className="flex items-center gap-3 text-zinc-400">
+                            <div className="p-1.5 rounded-full bg-rose-500/10">
+                              <MapPin className="w-4 h-4 text-rose-500" />
+                            </div>
+                            <span className="text-base font-medium">{item.location}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* JSON Data Schema Panel */}
+                <motion.div 
+                   initial={{ opacity: 0, x: 20 }}
+                   animate={{ opacity: 1, x: 0 }}
+                   transition={{ delay: 0.6, duration: 0.8 }}
+                   className="h-full"
+                >
+                  <div className="sticky top-12 flex flex-col max-h-[600px] bg-zinc-950/80 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                    <div className="px-6 py-4 border-b border-white/5 bg-zinc-900/80 flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                         <span className="text-[11px] font-mono text-zinc-300 font-semibold tracking-widest uppercase">Synthesized Schema (JSON)</span>
+                       </div>
+                       <div className="flex gap-2">
+                         <div className="w-3 h-3 rounded-full bg-white/10 border border-white/20" />
+                         <div className="w-3 h-3 rounded-full bg-white/10 border border-white/20" />
+                       </div>
+                    </div>
+                    <div className="p-6 overflow-y-auto font-mono text-[13px] leading-relaxed scrollbar-thin scrollbar-thumb-zinc-800">
+                      <pre><code className="text-indigo-300/90">{JSON.stringify(itinerary, null, 2)}</code></pre>
+                    </div>
+                  </div>
+                </motion.div>
+                
               </motion.div>
             )}
           </AnimatePresence>
