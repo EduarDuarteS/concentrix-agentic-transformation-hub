@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { createClient } from 'redis';
-import { RequirementEventSchema } from '../../packages/event-schemas';
+import { RequirementEventSchema } from '@concentrix/event-schemas';
 
 const app = express();
 const server = createServer(app);
