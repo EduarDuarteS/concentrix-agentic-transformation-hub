@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plane, Hotel, Utensils, MapPin, Loader2, Sparkles, Navigation, Sun, Moon, CalendarDays, Train } from 'lucide-react';
+import { Plane, Hotel, Utensils, MapPin, Loader2, Sparkles, Navigation, Sun, Moon, CalendarDays, Train, Cloud, CloudRain, CloudLightning, CloudSnow } from 'lucide-react';
 
 const mockParseData = {
   title: "Trip to Paris & Amsterdam",
@@ -97,11 +97,14 @@ export default function TravelVisualizer() {
   return (
     <div className={`transition-colors duration-700 h-full w-full font-sans overflow-y-auto p-4 md:p-12 ${isDark ? 'bg-[#09090b] text-zinc-100 selection:bg-indigo-500/30' : 'bg-slate-50 text-slate-900 selection:bg-indigo-500/20'}`}>
       
-      {/* Theme Toggle */}
-      <div className="fixed top-6 right-6 md:top-8 md:right-8 z-50">
+      {/* Top Navigation Bar: Weather + Theme */}
+      <div className="fixed top-4 left-4 right-4 md:top-8 md:left-8 md:right-8 z-50 flex items-start justify-between pointer-events-none">
+        <div className="pointer-events-auto">
+          <WeatherWidget isDark={isDark} />
+        </div>
         <button
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          className={`p-3 rounded-full backdrop-blur-xl border transition-all duration-300 hover:scale-110 shadow-lg ${isDark ? 'bg-zinc-900/50 border-white/10 hover:bg-zinc-800 text-zinc-400' : 'bg-white/80 border-slate-200 hover:bg-white text-slate-600 shadow-slate-200'}`}
+          className={`pointer-events-auto p-3 rounded-full backdrop-blur-xl border transition-all duration-300 hover:scale-110 shadow-[0_0_30px_rgba(0,0,0,0.3)] ${isDark ? 'bg-zinc-900/50 border-white/10 hover:bg-zinc-800 text-zinc-400' : 'bg-white/80 border-slate-200 hover:bg-white text-slate-600 shadow-slate-200'}`}
         >
           {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
