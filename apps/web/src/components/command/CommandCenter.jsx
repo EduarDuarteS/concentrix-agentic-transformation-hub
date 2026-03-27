@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useCanvasStore } from '../../store/useCanvasStore';
 
 const CommandCenter = () => {
-  const [logs, setLogs] = useState([
-    { id: 1, type: 'OK', agent: 'Gateway', msg: 'Protocol established on port 4000', time: '09:12:01' },
-    { id: 2, type: 'ZTA', agent: 'Validator', msg: 'Zero Trust Architecture enabled', time: '09:12:05' },
-    { id: 3, type: 'IA', agent: 'Orchestrator', msg: 'LangGraph State Machine online', time: '09:12:10' },
-  ]);
+  const logs = useCanvasStore((state) => state.logs);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -57,23 +54,24 @@ const CommandCenter = () => {
           </div>
         </div>
 
-        {/* Live Logs */}
+        {/* Live Logs (Real Data) */}
         <div className="rounded-[2.5rem] bg-black/40 border border-white/5 backdrop-blur-3xl p-6 flex flex-col overflow-hidden h-full">
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Agent Factory Logs</h4>
             <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
           </div>
           <div className="flex-1 space-y-4 font-mono text-[10px] overflow-y-auto pr-2 custom-scrollbar">
-            {logs.map((log) => (
+            {logs.length === 0 && <div className="text-zinc-700 italic">Initializing stream...</div>}
+            {[...logs].reverse().map((log) => (
               <div key={log.id} className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1">
                 <div className="flex justify-between">
-                  <span className={`font-bold ${log.type === 'OK' ? 'text-emerald-500' : 'text-indigo-400'}`}>[{log.type}]</span>
-                  <span className="text-zinc-600">{log.time}</span>
+                  <span className={`font-bold ${log.type === 'SUCCESS' || log.type === 'OK' ? 'text-emerald-500' : 'text-indigo-400'}`}>[{log.type}]</span>
+                  <span className="text-zinc-600">{new Date(log.id).toLocaleTimeString()}</span>
                 </div>
                 <p className="text-zinc-400 leading-relaxed"><span className="text-zinc-500">{log.agent}:</span> {log.msg}</p>
               </div>
             ))}
-            <div className="animate-pulse text-indigo-500 pt-2 font-bold tracking-tighter">_Awaiting next event...</div>
+            <div className="animate-pulse text-indigo-500 pt-2 font-bold tracking-tighter">_Listening...</div>
           </div>
         </div>
       </div>

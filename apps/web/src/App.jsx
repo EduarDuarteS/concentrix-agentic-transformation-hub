@@ -3,17 +3,43 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import BusinessDashboard from './components/business/BusinessDashboard';
 import CommandCenter from './components/command/CommandCenter';
 import LiveCanvas from './components/canvas/LiveCanvas';
+import { useBusinessStore } from './store/useBusinessStore';
+import { useCanvasStore } from './store/useCanvasStore';
 
 const App = () => {
   const [socketStatus, setSocketStatus] = useState('connecting');
+  const addLog = useCanvasStore((state) => state.addLog);
+  const updateMetrics = useBusinessStore((state) => state.updateMetrics);
 
   useEffect(() => {
-    // Simulación de conexión a nuestro Gateway
+    // Gateway Connection Logic
     const ws = new WebSocket('ws://localhost:4000');
-    ws.onopen = () => setSocketStatus('online');
+
+    ws.onopen = () => {
+      setSocketStatus('online');
+      addLog({ agent: 'System', msg: 'WebSocket Link Established', type: 'OK' });
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        // Router de eventos entrantes de la Factoría
+        if (data.type === 'FACTORY_LOG') {
+          addLog({ agent: data.agent, msg: data.message, type: data.status || 'INFO' });
+        } else if (data.type === 'ROI_UPDATED') {
+          updateMetrics(data.payload);
+        } else if (data.type === 'CODE_GENERATED') {
+          addLog({ agent: 'LeadCoder', msg: `Módulo generado: ${data.payload.fileName}`, type: 'SUCCESS' });
+        }
+      } catch (e) {
+        console.error('WS Data Error:', e);
+      }
+    };
+
     ws.onclose = () => setSocketStatus('offline');
     return () => ws.close();
-  }, []);
+  }, [addLog, updateMetrics]);
 
   return (
     <Router>

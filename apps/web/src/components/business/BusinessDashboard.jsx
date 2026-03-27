@@ -1,4 +1,5 @@
 import React from 'react';
+import { useBusinessStore } from '../../store/useBusinessStore';
 
 const KpiCard = ({ title, value, change, trend }) => (
   <div className="bg-zinc-900/40 border border-white/5 backdrop-blur-xl p-6 rounded-3xl">
@@ -13,6 +14,8 @@ const KpiCard = ({ title, value, change, trend }) => (
 );
 
 const BusinessDashboard = () => {
+  const { metrics, projections } = useBusinessStore();
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex justify-between items-center">
@@ -29,10 +32,10 @@ const BusinessDashboard = () => {
 
       {/* Primary KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KpiCard title="Cost per Contact" value="$0.15" change="-96.6%" trend="up" />
-        <KpiCard title="Time-to-Market" value="40m" change="-99.8%" trend="up" />
-        <KpiCard title="Staffing Ratio" value="1:8" change="+700%" trend="up" />
-        <KpiCard title="Self-Healing rate" value="94.2%" change="Nominal" trend="up" />
+        <KpiCard title="Cost per Contact" value={`$${metrics.aiCostPerContact}`} change="-96.6%" trend="up" />
+        <KpiCard title="Time-to-Market" value={metrics.ttm} change="-99.8%" trend="up" />
+        <KpiCard title="Staffing Ratio" value={metrics.staffing} change="+700%" trend="up" />
+        <KpiCard title="Self-Healing rate" value={`${metrics.selfHealing}%`} change="Nominal" trend="up" />
       </div>
 
       {/* Detailed Charts Row */}
@@ -42,9 +45,9 @@ const BusinessDashboard = () => {
             <h4 className="text-lg font-semibold text-white">Projected Savings (Annual)</h4>
             <span className="text-[10px] font-mono text-zinc-600">Source: Sifu_Summary_Agent</span>
           </div>
-          {/* Simulated Chart Placeholder */}
+          {/* Real Data Chart Mapping */}
           <div className="h-64 w-full flex items-end gap-2">
-            {[40, 70, 45, 90, 65, 80, 100].map((h, i) => (
+            {projections.map((h, i) => (
               <div key={i} className="flex-1 bg-gradient-to-t from-indigo-500/20 to-indigo-500/60 rounded-t-lg transition-all hover:to-indigo-400 cursor-pointer" style={{ height: `${h}%` }}></div>
             ))}
           </div>
